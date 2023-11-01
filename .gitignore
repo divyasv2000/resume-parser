@@ -1,0 +1,10 @@
+/output_folder
+/uploads
+/ex
+/__pycache__
+a.py
+project.py
+CV_parsed_by_CV_Parser_Premium.json
+resumeparse.py
+test.py
+pdf_extraction.py

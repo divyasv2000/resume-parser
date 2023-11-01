@@ -1,0 +1,14 @@
+docx==0.2.4
+docx2txt==0.8
+fastapi==0.104.1
+keywords==0.0.1
+nltk==3.8.1
+pandas==2.0.3
+pdfplumber==0.10.2
+phonenumbers==8.13.23
+PyPDF2==3.0.1
+python_docx==1.0.1
+Requests==2.31.0
+spacy==3.7.1
+stemming==1.0.1
+tika==2.6.0

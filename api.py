@@ -2,6 +2,11 @@ from typing import Union
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, status, Header
 from new import get_json
 import os
+import urllib.request
+from pydantic import BaseModel
+
+class S3Url(BaseModel):
+    url: str
 
 app = FastAPI()
 
@@ -23,4 +28,11 @@ def upload_file(file: UploadFile = File(), api_key: str = Header(..., convert_un
     data = get_json("uploads", file.filename)
     os.remove("uploads/"+file.filename)
     file.file.close()
+    return data
+
+@app.post("/s3file")
+def s3File(s3url: S3Url):
+    urllib.request.urlretrieve(s3url.url, "uploads/resume.pdf")
+    data = get_json("uploads", "resume.pdf")
+    os.remove("uploads/resume.pdf")
     return data

@@ -89,6 +89,7 @@ class ResumeParser:
                 # Check if the next token is a possible end date indicator
                 elif i < len(doc) - 1 and re.match(r'\b(year|date|to|until)\b', doc[i + 1].text, re.IGNORECASE):
                     end_date = token.text
+                    
         # Extract educational institution names
         for ent in doc.ents:
             if ent.label_ == "ORG":
@@ -420,22 +421,69 @@ class ResumeParser:
 
             parsed_resume.append({
                 "data": {
+                "profile_id": "",
+                "job_request_id": "",
                 "firstName": first_name,
                 "lastName":last_name,
                 "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
                 "mobile": contact_number,
                 "work_mobile": "",
-                "description": "",
+                "address":addresses,
+                "email":email_address,
+                "current_designation":filter_designation,
+                "photo": "",
                 "resume": "",
-                "key_skills": "",
+                "experience":total_experience,
+                "current_salary": "",
+                "notice_period": "",
+                "current_company": current_company,
+                "dob": dob_natural_language if dob_natural_language else dob_numeric,
+                "educations": [
+                {
+                    "education": institution_names,
+                    "course": degree,
+                    "speciallization": "",
+                    "university": "",
+                    "achievement": "", 
+                    "passingOutYear": end_date,                  
+                    "courseType": "",
+                    "percentage": ""
+                },
+                ],
+                "projects": [
+                {
+                    "title": "",
+                    "tag":"",
+                    "client": "",
+                    "project_status": "",
+                    "worked_from": "",
+                    # "worked_to": "",
+                    "description": projects,
+                },
+                ],
+                "employments": [
+                {
+                    "isCurrentEmloyment": 1, #yes
+                    "employmentType": "",
+                    "companyName": current_company,
+                    "designation": "",
+                    "joinDate": "",
+                    "endDate": "",
+                    "salary": "",
+                    "jobProfile": "",
+                    "id":""
+                },
+                # {
+                #     "isCurrentEmloyment": 2, #No
+                #     "employmentType": "",
+                #     "companyName": "",
+                #     "designation": "",
+                #     "joinDate": "",
+                #     "endDate": "",
+                #     "salary": "",
+                #     "jobProfile": ""
+                # }
+                ],               
                 "technical_skills": [
                 {
                     "skill_id": "",
@@ -450,56 +498,7 @@ class ResumeParser:
                     "experience": 3,
                 }
                 ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                # {
-                #     "isCurrentEmloyment": 2, #No
-                #     "employmentType": "",
-                #     "companyName": "",
-                #     "designation": "",
-                #     "joinDate": "",
-                #     "endDate": "",
-                #     "salary": "",
-                #     "jobProfile": ""
-                # }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
+                "key_skills": "",
             }})
 
         for docx_file in docx_files:
@@ -521,22 +520,69 @@ class ResumeParser:
 
             parsed_resume.append({
                 "data": {
+                "profile_id": "",
+                "job_request_id": "",
                 "firstName": first_name,
                 "lastName":last_name,
                 "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
                 "mobile": contact_number,
                 "work_mobile": "",
-                "description": "",
+                "address":addresses,
+                "email":email_address,
+                "current_designation":filter_designation,
+                "photo": "",
                 "resume": "",
-                "key_skills": "",
+                "experience":total_experience,
+                "current_salary": "",
+                "notice_period": "",
+                "current_company": current_company,
+                "dob": dob_natural_language if dob_natural_language else dob_numeric,
+                "educations": [
+                {
+                    "education": institution_names,
+                    "course": degree,
+                    "speciallization": "",
+                    "university": "",
+                    "achievement": "", 
+                    "passingOutYear": end_date,                  
+                    "courseType": "",
+                    "percentage": ""
+                },
+                ],
+                "projects": [
+                {
+                    "title": "",
+                    "tag":"",
+                    "client": "",
+                    "project_status": "",
+                    "worked_from": "",
+                    # "worked_to": "",
+                    "description": projects,
+                },
+                ],
+                "employments": [
+                {
+                    "isCurrentEmloyment": 1, #yes
+                    "employmentType": "",
+                    "companyName": current_company,
+                    "designation": "",
+                    "joinDate": "",
+                    "endDate": "",
+                    "salary": "",
+                    "jobProfile": "",
+                    "id":""
+                },
+                # {
+                #     "isCurrentEmloyment": 2, #No
+                #     "employmentType": "",
+                #     "companyName": "",
+                #     "designation": "",
+                #     "joinDate": "",
+                #     "endDate": "",
+                #     "salary": "",
+                #     "jobProfile": ""
+                # }
+                ],               
                 "technical_skills": [
                 {
                     "skill_id": "",
@@ -551,56 +597,7 @@ class ResumeParser:
                     "experience": 3,
                 }
                 ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                # {
-                #     "isCurrentEmloyment": 2, #No
-                #     "employmentType": "",
-                #     "companyName": "",
-                #     "designation": "",
-                #     "joinDate": "",
-                #     "endDate": "",
-                #     "salary": "",
-                #     "jobProfile": ""
-                # }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
+                "key_skills": "",
             }})
 
         return parsed_resume
@@ -632,22 +629,69 @@ class ResumeParser:
 
             parsed_resume.append({
                 "data": {
+                "profile_id": "",
+                "job_request_id": "",
                 "firstName": first_name,
                 "lastName":last_name,
                 "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
                 "mobile": contact_number,
                 "work_mobile": "",
-                "description": "",
+                "address":addresses,
+                "email":email_address,
+                "current_designation":filter_designation,
+                "photo": "",
                 "resume": "",
-                "key_skills": "",
+                "experience":total_experience,
+                "current_salary": "",
+                "notice_period": "",
+                "current_company": current_company,
+                "dob": dob_natural_language if dob_natural_language else dob_numeric,
+                "educations": [
+                {
+                    "education": institution_names,
+                    "course": degree,
+                    "speciallization": "",
+                    "university": "",
+                    "achievement": "", 
+                    "passingOutYear": end_date,                  
+                    "courseType": "",
+                    "percentage": ""
+                },
+                ],
+                "projects": [
+                {
+                    "title": "",
+                    "tag":"",
+                    "client": "",
+                    "project_status": "",
+                    "worked_from": "",
+                    # "worked_to": "",
+                    "description": projects,
+                },
+                ],
+                "employments": [
+                {
+                    "isCurrentEmloyment": 1, #yes
+                    "employmentType": "",
+                    "companyName": current_company,
+                    "designation": "",
+                    "joinDate": "",
+                    "endDate": "",
+                    "salary": "",
+                    "jobProfile": "",
+                    "id":""
+                },
+                # {
+                #     "isCurrentEmloyment": 2, #No
+                #     "employmentType": "",
+                #     "companyName": "",
+                #     "designation": "",
+                #     "joinDate": "",
+                #     "endDate": "",
+                #     "salary": "",
+                #     "jobProfile": ""
+                # }
+                ],               
                 "technical_skills": [
                 {
                     "skill_id": "",
@@ -662,58 +706,8 @@ class ResumeParser:
                     "experience": 3,
                 }
                 ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                {
-                    "isCurrentEmloyment": 2, #No
-                    "employmentType": "",
-                    "companyName": "",
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
+                "key_skills": "",
             }})
-
             # parsed_resume.append({
             #     "File": os.path.basename(pdf_file),
             #     "Designation": filter_designation,
@@ -761,22 +755,69 @@ class ResumeParser:
 
             parsed_resume.append({
                 "data": {
+                "profile_id": "",
+                "job_request_id": "",
                 "firstName": first_name,
                 "lastName":last_name,
                 "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
                 "mobile": contact_number,
                 "work_mobile": "",
-                "description": "",
+                "address":addresses,
+                "email":email_address,
+                "current_designation":filter_designation,
+                "photo": "",
                 "resume": "",
-                "key_skills": "",
+                "experience":total_experience,
+                "current_salary": "",
+                "notice_period": "",
+                "current_company": current_company,
+                "dob": dob_natural_language if dob_natural_language else dob_numeric,
+                "educations": [
+                {
+                    "education": institution_names,
+                    "course": degree,
+                    "speciallization": "",
+                    "university": "",
+                    "achievement": "", 
+                    "passingOutYear": end_date,                  
+                    "courseType": "",
+                    "percentage": ""
+                },
+                ],
+                "projects": [
+                {
+                    "title": "",
+                    "tag":"",
+                    "client": "",
+                    "project_status": "",
+                    "worked_from": "",
+                    # "worked_to": "",
+                    "description": projects,
+                },
+                ],
+                "employments": [
+                {
+                    "isCurrentEmloyment": 1, #yes
+                    "employmentType": "",
+                    "companyName": current_company,
+                    "designation": "",
+                    "joinDate": "",
+                    "endDate": "",
+                    "salary": "",
+                    "jobProfile": "",
+                    "id":""
+                },
+                # {
+                #     "isCurrentEmloyment": 2, #No
+                #     "employmentType": "",
+                #     "companyName": "",
+                #     "designation": "",
+                #     "joinDate": "",
+                #     "endDate": "",
+                #     "salary": "",
+                #     "jobProfile": ""
+                # }
+                ],               
                 "technical_skills": [
                 {
                     "skill_id": "",
@@ -791,56 +832,7 @@ class ResumeParser:
                     "experience": 3,
                 }
                 ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                {
-                    "isCurrentEmloyment": 2, #No
-                    "employmentType": "",
-                    "companyName": "",
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
+                "key_skills": "",
             }})
             # parsed_resume.append({
             #     "File": os.path.basename(docx_file),

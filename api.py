@@ -2,7 +2,13 @@ from typing import Union
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, status, Header
 from new import get_json
 import os
-
+import nltk
+##
+import spacy 
+nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
+nltk.download('stopwords')
+##
 app = FastAPI()
 
 SECRET_API_KEY = "resumeapi@2023"

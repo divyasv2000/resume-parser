@@ -5,8 +5,7 @@ import os
 import glob
 from PyPDF2 import PdfReader
 import json
-import re
-import nltk
+import re,ast
 from nltk.corpus import stopwords
 from docx import Document
 
@@ -190,54 +189,52 @@ class ResumeParser:
 
         return languages
 
-    def extract_addresses(self, resume_text):
-        doc = self.nlp(resume_text)
+    def extract_addresses(self, text):
+        doc = self.nlp(text)
         addresses = []
 
         for ent in doc.ents:
-            if ent.label_ in ["GPE", "LOC"]:
-                # Append recognized geographical entities (places) to the addresses
+            if ent.label_ in ["GPE", "LOC", "FAC"]:
                 addresses.append(ent.text)
 
+        address_terms = ["apartment", "block", "lane", "road", "nagar", "street", 
+                         "colony", "sector", "area", "room", "flat", "residence", 
+                         "stay", "society", "plot", "house", "st."]
+        
         for token in doc:
-            if token.text.lower() in ["apartment", "block", "lane", "road", "nagar", "street", "colony", "sector", "area",
-                                     "room", "flat", "residence", "stay", "society", "plot", "house", "st."]:
+            if token.text.lower() in address_terms:
                 address = token.text
-                # Collect words following the address term until a comma, period, or newline
                 for next_token in token.rights:
                     if next_token.is_punct or next_token.is_space:
                         break
                     address += " " + next_token.text
-
                 addresses.append(address)
 
-            # Extract pincode using regular expression
-            pincode_match = re.search(r'\b\d{6}\b', token.text)
-            if pincode_match:
-                addresses.append(pincode_match.group())
-
-        return addresses
+            if re.match(r'\b\d{6}\b', token.text):
+                addresses.append(token.text)
+        
+        return ", ".join(addresses)
 
     def extract_designation(self, resume_text):
-        # Load the spaCy model
-        nlp = spacy.load("en_core_web_sm")
-        designation_file="titles_combined.txt"
-        # Read job designations from a file
-        with open(designation_file, "r") as file:
-            job_designations = [line.strip().lower() for line in file]
+            nlp = spacy.load("en_core_web_sm")
+            designation_file = "titles_combined.txt"
 
-        # Initialize a PhraseMatcher
-        matcher = PhraseMatcher(nlp.vocab)
-        patterns = [nlp.make_doc(designation) for designation in job_designations]
-        matcher.add("JobTitle", None, *patterns)
+            with open(designation_file, "r") as file:
+                job_designations = [line.strip().lower() for line in file]
 
-        # Process the resume text
-        doc = nlp(resume_text.lower())
+            matcher = PhraseMatcher(nlp.vocab)
+            patterns = [nlp.make_doc(designation) for designation in job_designations]
+            matcher.add("JobTitle", None, *patterns)
 
-        # Use the PhraseMatcher to extract job designations
-        filter_designation = [doc[start:end].text for match_id, start, end in matcher(doc)]
+            doc = nlp(resume_text.lower())
+            filter_designation = (doc[start:end].text for match_id, start, end in matcher(doc))
 
-        return filter_designation
+            
+            
+        
+            return (filter_designation) # Return the latest designation
+            # else:
+            #     return ""
 
     def load_skills_keywords(self, skills_file):
         with open(skills_file, "r", encoding='utf-8') as file:
@@ -396,214 +393,6 @@ class ResumeParser:
 
         return projects
 
-    def process_resumes(self):
-        pdf_files = glob.glob(os.path.join(self.pdf_folder, "*.pdf"))
-        docx_files = glob.glob(os.path.join(self.pdf_folder, "*.docx"))
-        parsed_resume = []
-
-        for pdf_file in pdf_files:
-            resume_text = self.extract_text_from_pdf(pdf_file)
-            filter_designation=self.extract_designation(resume_text)
-            filter_designation = list(dict.fromkeys(filter_designation).keys())
-            job_role= self.extract_keywords(resume_text)
-            degree, start_date, end_date, institution_names = self.extract_education(resume_text)
-            contact_number, email_address = self.extract_additional_info(resume_text)
-            current_company, organizations = self.extract_work_experience(resume_text)
-            dob_numeric, dob_natural_language = self.extract_date_of_birth(resume_text)
-            addresses=self.extract_addresses(resume_text)
-            urls= self.extract_urls(resume_text)
-            first_name, last_name =self.extract_name(resume_text)
-            skills = self.extract_skills(resume_text)
-            total_experience =self.extract_total_experience(resume_text)
-            certifications= self.extract_certifications_and_courses(resume_text)
-            projects = self.extract_projects(resume_text)
-
-            parsed_resume.append({
-                "data": {
-                "firstName": first_name,
-                "lastName":last_name,
-                "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
-                "mobile": contact_number,
-                "work_mobile": "",
-                "description": "",
-                "resume": "",
-                "key_skills": "",
-                "technical_skills": [
-                {
-                    "skill_id": "",
-                    "experience": "",
-                },
-                {
-                    "skill_id": "",
-                    "experience": "",
-                },
-                {
-                    "skill_id": "",
-                    "experience": 3,
-                }
-                ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                # {
-                #     "isCurrentEmloyment": 2, #No
-                #     "employmentType": "",
-                #     "companyName": "",
-                #     "designation": "",
-                #     "joinDate": "",
-                #     "endDate": "",
-                #     "salary": "",
-                #     "jobProfile": ""
-                # }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
-            }})
-
-        for docx_file in docx_files:
-            resume_text = self.extract_text_from_docx(docx_file)
-            filter_designation=self.extract_designation(resume_text)
-            filter_designation = list(dict.fromkeys(filter_designation).keys())
-            degree, start_date, end_date, institution_names = self.extract_education(resume_text)
-            contact_number, email_address = self.extract_additional_info(resume_text)
-            current_company, organizations = self.extract_work_experience(resume_text)
-            dob_numeric, dob_natural_language = self.extract_date_of_birth(resume_text)
-            addresses=self.extract_addresses(resume_text)
-            urls= self.extract_urls(resume_text)
-            first_name, last_name =self.extract_name(resume_text)
-            skills = self.extract_skills(resume_text)
-            total_experience =self.extract_total_experience(resume_text)
-            certifications = self.extract_certifications_and_courses(resume_text)
-            projects = self.extract_projects(resume_text)
-
-
-            parsed_resume.append({
-                "data": {
-                "firstName": first_name,
-                "lastName":last_name,
-                "fullName":"",
-                "address":addresses,
-                "current_designation":filter_designation,
-                "experience":total_experience,
-                "salary_expectation": "",
-                "notice_period": "",
-                "current_company": current_company,
-                "email":email_address,
-                "dob": dob_natural_language if dob_natural_language else dob_numeric,
-                "mobile": contact_number,
-                "work_mobile": "",
-                "description": "",
-                "resume": "",
-                "key_skills": "",
-                "technical_skills": [
-                {
-                    "skill_id": "",
-                    "experience": "",
-                },
-                {
-                    "skill_id": "",
-                    "experience": "",
-                },
-                {
-                    "skill_id": "",
-                    "experience": 3,
-                }
-                ],
-                "photo": "",
-                "currentCTC": "",
-                "currentLocation": "",
-                "buyout_option": "",
-                "location_preferred": "",
-                "other_details": "",
-                "educations": [
-                {
-                    "education": institution_names,
-                    "course": degree,
-                    "speciallization": "",
-                    "achievement": "",
-                    "university": "",
-                    "courseType": "",
-                    "passingOutYear": end_date,
-                    "gradingSystem": ""
-                },
-                ],
-                "employments": [
-                {
-                    "isCurrentEmloyment": 1, #yes
-                    "employmentType": "",
-                    "companyName": current_company,
-                    "designation": "",
-                    "joinDate": "",
-                    "endDate": "",
-                    "salary": "",
-                    "jobProfile": ""
-                },
-                # {
-                #     "isCurrentEmloyment": 2, #No
-                #     "employmentType": "",
-                #     "companyName": "",
-                #     "designation": "",
-                #     "joinDate": "",
-                #     "endDate": "",
-                #     "salary": "",
-                #     "jobProfile": ""
-                # }
-                ],
-                "projects": [
-                {
-                    "title": "",
-                    "client": "",
-                    "project_status": "",
-                    "worked_from": "",
-                    "worked_to": "",
-                    "description": projects,
-                },
-                ]
-            }})
-
-        return parsed_resume
 
     def process_resume(self):
         # pdf_file = glob.glob(os.path.join(self.pdf_folder, self.file_name)[0])
@@ -614,8 +403,11 @@ class ResumeParser:
             pdf_file = os.path.join(self.pdf_folder, self.file_name)
 
             resume_text = self.extract_text_from_pdf(pdf_file)
-            filter_designation=self.extract_designation(resume_text)
-            filter_designation = list(dict.fromkeys(filter_designation).keys())
+            filter_desig=self.extract_designation(resume_text)
+            filter_desig = str(dict.fromkeys(filter_desig).keys())
+            filter_desig = ast.literal_eval(filter_desig.split('(')[1].split(')')[0])
+            if filter_desig:
+                current_org_designation = filter_desig[0]
             degree, start_date, end_date, institution_names = self.extract_education(resume_text)
             contact_number, email_address = self.extract_additional_info(resume_text)
             current_company, organizations = self.extract_work_experience(resume_text)
@@ -636,7 +428,7 @@ class ResumeParser:
                 "lastName":last_name,
                 "fullName":"",
                 "address":addresses,
-                "current_designation":filter_designation,
+                "current_designation":current_org_designation,
                 "experience":total_experience,
                 "salary_expectation": "",
                 "notice_period": "",
@@ -743,8 +535,11 @@ class ResumeParser:
         if '.doc' in self.file_name:
             docx_file = os.path.join(self.pdf_folder, self.file_name)
             resume_text = self.extract_text_from_docx(docx_file)
-            filter_designation=self.extract_designation(resume_text)
-            filter_designation = list(dict.fromkeys(filter_designation).keys())
+            filter_desig=self.extract_designation(resume_text)
+            filter_desig = str(dict.fromkeys(filter_desig).keys())
+            filter_desig = ast.literal_eval(filter_desig.split('(')[1].split(')')[0])
+            if filter_desig:
+                current_org_designation = filter_desig[0]            
             degree, start_date, end_date, institution_names = self.extract_education(resume_text)
             contact_number, email_address = self.extract_additional_info(resume_text)
             current_company, organizations = self.extract_work_experience(resume_text)
@@ -765,7 +560,7 @@ class ResumeParser:
                 "lastName":last_name,
                 "fullName":"",
                 "address":addresses,
-                "current_designation":filter_designation,
+                "current_designation":current_org_designation,
                 "experience":total_experience,
                 "salary_expectation": "",
                 "notice_period": "",
